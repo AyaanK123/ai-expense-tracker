@@ -1,0 +1,11 @@
+# [project]
+# id = "ai-expense-tracker"
+
+[api]
+enabled = true
+
+[db]
+major_version = 15
+
+[functions.categorize-expense]
+verify_jwt = true
