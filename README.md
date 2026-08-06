@@ -1109,6 +1109,9 @@ These practices improve code quality, maintainability, and scalability while pro
 ---
 
 ---
+### 🚀 Featured Projects
+
+- 📊 **[AI Expense Tracker](https://github.com/RiyaJadhav01/ai-expense-tracker)**: A smart application featuring secure authentication, budget tracking, and AI-powered insights with complete visual walkthroughs.
 
 # 🚀 Getting Started
 
