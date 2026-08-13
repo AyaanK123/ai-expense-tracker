@@ -133,7 +133,7 @@ export function ExpenseForm({ initialData, onSubmit, onCancel }: ExpenseFormProp
     }
 
     // Automatically change the selector to the right category match
-    setCategory(matchedCategory);
+    setCategory(matchedCategory as "Food" | "Transport" | "Shopping" | "Entertainment" | "Bills" | "Healthcare" | "Travel" | "Education" | "Other");
   }}
   className="block w-full rounded-xl border border-slate-200 px-4 py-2.5 ..."
 />

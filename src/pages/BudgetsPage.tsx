@@ -2,7 +2,15 @@ import { useState, useMemo, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useExpenses } from '@/hooks/useExpenses'
 import { useBudgets } from '@/hooks/useBudgets'
-import { supabase } from '@/lib/supabase' // Make sure supabase client path matches your project structure
+import { supabase } from '@/lib/supabase'
+
+export interface Expense {
+  id?: string;
+  title?: string;
+  amount: number;
+  category: string;
+  date: string;
+}
 
 const CATEGORIES = ['Food', 'Entertainment', 'Shopping', 'Bills', 'Other']
 
@@ -76,13 +84,13 @@ export function BudgetsPage() {
     const spending: Record<string, number> = {}
     CATEGORIES.forEach(cat => { spending[cat] = 0 })
 
-    ;(expenses || []).forEach((exp: Record<string, unknown>) => {
-      const expDate = new Date(exp.date as string)
+    ;((expenses as Expense[]) || []).forEach((exp: Expense) => {
+      const expDate = new Date(exp.date)
       const expMonth = (expDate.getMonth() + 1).toString().padStart(2, '0')
       const expYear = expDate.getFullYear().toString()
 
       if (expMonth === activeMonth && expYear === activeYear) {
-        const cat = String(exp.category || 'Other')
+        const cat = exp.category || 'Other'
         const amount = Number(exp.amount || 0)
         spending[cat] = (spending[cat] || 0) + amount
       }
@@ -101,14 +109,14 @@ export function BudgetsPage() {
       activeMonthsPerCategory[cat] = new Set()
     })
 
-    ;(expenses || []).forEach((exp: Record<string, unknown>) => {
-      const expDate = new Date(exp.date as string)
+    ;((expenses as Expense[]) || []).forEach((exp: Expense) => {
+      const expDate = new Date(exp.date)
       const expMonth = (expDate.getMonth() + 1).toString().padStart(2, '0')
       const expYear = expDate.getFullYear().toString()
       const yearMonthKey = `${expYear}-${expMonth}`
 
       if (yearMonthKey !== `${activeYear}-${activeMonth}`) {
-        const cat = String(exp.category || 'Other')
+        const cat = exp.category || 'Other'
         const amount = Number(exp.amount || 0)
         if (totals[cat] !== undefined) {
           totals[cat] += amount
@@ -454,5 +462,3 @@ export function BudgetsPage() {
     </div>
   )
 }
-
-export default BudgetsPage

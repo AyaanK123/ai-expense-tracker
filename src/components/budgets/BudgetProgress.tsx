@@ -1,4 +1,3 @@
-import React from 'react'
 import type { ExpenseCategory } from '@/types/expense'
 
 interface BudgetProgressProps {

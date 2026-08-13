@@ -1,6 +1,17 @@
+// src/hooks/useDashboard.ts
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './useAuth'
+
+export interface ExpenseItem {
+  id?: string
+  title?: string
+  description?: string
+  amount: number
+  category: string
+  date: string
+  receipt_url?: string
+}
 
 interface DashboardData {
   monthlyIncome: number
@@ -22,7 +33,9 @@ export function useDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Optional chaining already guards against null/undefined user
     if (!user?.id) return
+    const userId = user.id
 
     async function fetchDashboardData() {
       try {
@@ -32,14 +45,14 @@ export function useDashboard() {
         const { data: profile } = await supabase
           .from('profiles')
           .select('monthly_income, currency')
-          .eq('user_id', user.id)
+          .eq('user_id', userId) // Fixed: using typed local variable userId
           .single()
 
         // 2. Fetch Expenses Data
         const { data: expenses } = await supabase
           .from('expenses')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', userId) // Fixed: using typed local variable userId
           .order('date', { ascending: false })
 
         const income = profile?.monthly_income || 0
@@ -62,7 +75,7 @@ export function useDashboard() {
     }
 
     fetchDashboardData()
-   }, [user?.id])
+  }, [user?.id])
 
   return { data, loading }
 }

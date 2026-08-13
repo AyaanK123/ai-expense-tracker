@@ -1,4 +1,3 @@
-import React from 'react'
 import { AlertTriangle, TrendingDown, ArrowUpRight } from 'lucide-react'
 
 interface DeficitAlertBannerProps {

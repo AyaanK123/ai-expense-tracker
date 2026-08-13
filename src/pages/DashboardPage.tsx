@@ -5,6 +5,14 @@ import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
 import { DeficitAlertBanner } from '@/components/DeficitAlertBanner'
 import { supabase } from '@/lib/supabase'
 
+export interface Expense {
+  id?: string;
+  title?: string;
+  amount: number;
+  category: string;
+  date: string;
+}
+
 export function DashboardPage() {
   const { user } = useAuth()
   const { expenses, loading, error } = useExpenses(user?.id)
@@ -18,13 +26,14 @@ export function DashboardPage() {
   
   // Fetch user profile data (income and currency) in a single request
   useEffect(() => {
-    if (!user?.id) return
+    if (!user?.id) return;
+    const userId = user.id;
 
     async function fetchUserProfile() {
       const { data, error } = await supabase
         .from('profiles')
         .select('monthly_income, currency')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single()
       
       if (error) {
@@ -61,15 +70,15 @@ export function DashboardPage() {
     )
   }
 
-  // Calculate total expenses specifically for the active/current month
-  const totalExpenses = (expenses || [])
-    .filter((exp: Record<string, unknown>) => {
-      const expDate = new Date(exp.date as string)
+  // Calculate total expenses specifically for the active/current month using strict Expense type
+  const totalExpenses = ((expenses as Expense[]) || [])
+    .filter((exp: Expense) => {
+      const expDate = new Date(exp.date)
       const expMonth = expDate.toLocaleString('default', { month: 'long' })
       const expYear = expDate.getFullYear().toString()
       return expMonth === currentMonthName && expYear === currentYearVal
     })
-    .reduce((acc: number, curr: Record<string, unknown>) => acc + Number(curr.amount || 0), 0)
+    .reduce((acc: number, curr: Expense) => acc + Number(curr.amount || 0), 0)
 
   return (
     <div className="space-y-6">
@@ -91,5 +100,3 @@ export function DashboardPage() {
     </div>
   )
 }
-
-export default DashboardPage

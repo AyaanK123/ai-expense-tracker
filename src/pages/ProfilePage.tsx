@@ -1,3 +1,4 @@
+// src/pages/ProfilePage.tsx
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useExpenses } from '@/hooks/useExpenses'
@@ -40,11 +41,13 @@ export function ProfilePage() {
   // Fetch current details from Supabase
   useEffect(() => {
     if (!user?.id) return
+    const userId = user.id
+
     async function loadProfile() {
       const { data } = await supabase
         .from('profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .maybeSingle()
 
       if (data) {
@@ -61,6 +64,7 @@ export function ProfilePage() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user?.id) return
+    const userId = user.id
 
     try {
       setLoading(true)
@@ -68,7 +72,7 @@ export function ProfilePage() {
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          user_id: user.id,
+          user_id: userId,
           full_name: fullName,
           phone: phone,
           occupation: occupation,
@@ -109,6 +113,8 @@ export function ProfilePage() {
   // Handle Account Data Deletion
   const handleDeleteAccount = async () => {
     if (!user?.id) return
+    const userId = user.id
+
     if (deleteConfirmText.trim().toLowerCase() !== 'delete') {
       alert('Please type "DELETE" to confirm account deletion.')
       return
@@ -121,7 +127,7 @@ export function ProfilePage() {
       const { error: expError } = await supabase
         .from('expenses')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
 
       if (expError) console.error('Error purging expenses:', expError)
 
@@ -129,7 +135,7 @@ export function ProfilePage() {
       const { error: profError } = await supabase
         .from('profiles')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
 
       if (profError) console.error('Error purging profile:', profError)
 
@@ -215,15 +221,17 @@ export function ProfilePage() {
     categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount
   })
 
-  let topCategory: { name: string; amount: number } | null = null
+  // Force explicit type casting using 'as'
+  let topCategory = null as { name: string; amount: number } | null
   let maxAmount = 0
+  
   Object.entries(categoryTotals).forEach(([cat, amt]) => {
     if (amt > maxAmount) {
       maxAmount = amt
       topCategory = { name: cat, amount: amt }
     }
   })
-
+  
   const spentRatio = incomeNum > 0 ? (totalSpent / incomeNum) * 100 : 0
   let healthStatus = 'Healthy'
   let healthColor = 'text-emerald-600 bg-emerald-50 border-emerald-200'
@@ -314,7 +322,6 @@ export function ProfilePage() {
             <p className="text-xs text-slate-500 mt-0.5">Control password, active sessions, and data deletion</p>
           </div>
 
-          {/* Sub-option 1: Logged Session Details */}
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
             <span className="text-xs font-semibold text-slate-700 block">Logged Account Session</span>
             <div className="flex justify-between items-center text-xs">
@@ -323,7 +330,6 @@ export function ProfilePage() {
             </div>
           </div>
 
-          {/* Sub-option 2: Password Reset */}
           <div className="space-y-2 pt-1 border-t border-slate-100">
             <h3 className="text-xs font-semibold text-slate-700">Security & Authentication</h3>
             <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200">
@@ -347,7 +353,6 @@ export function ProfilePage() {
             )}
           </div>
 
-          {/* Sub-option 3: Danger Zone / Account Deletion */}
           <div className="space-y-3 pt-2 border-t border-slate-100">
             <h3 className="text-xs font-semibold text-rose-600">Danger Zone</h3>
 

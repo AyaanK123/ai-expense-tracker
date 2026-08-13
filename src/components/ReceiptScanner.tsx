@@ -57,5 +57,3 @@ export default function ReceiptScanner({ onScanComplete }: ReceiptScannerProps) 
     </div>
   );
 }
-
-export default ReceiptScanner;

@@ -7,8 +7,16 @@ interface AddExpenseModalProps {
   onAddExpense: (expense: { title: string; amount: number; category: string; date: string }) => void;
 }
 
-// Smart keyword detector for auto-categorization
-
+// Simple smart keyword detector for auto-categorization
+function detectCategory(text: string): string {
+  const lower = text.toLowerCase()
+  if (lower.includes('uber') || lower.includes('cab') || lower.includes('train') || lower.includes('petrol') || lower.includes('fuel')) return 'Transport'
+  if (lower.includes('food') || lower.includes('zomato') || lower.includes('swiggy') || lower.includes('lunch') || lower.includes('dinner') || lower.includes('coffee')) return 'Food'
+  if (lower.includes('movie') || lower.includes('game') || lower.includes('netflix') || lower.includes('concert')) return 'Entertainment'
+  if (lower.includes('shirt') || lower.includes('shoes') || lower.includes('amazon') || lower.includes('flipkart') || lower.includes('shopping')) return 'Shopping'
+  if (lower.includes('bill') || lower.includes('electricity') || lower.includes('wifi') || lower.includes('rent')) return 'Bills'
+  return 'Other'
+}
 
 export function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddExpenseModalProps) {
   const [title, setTitle] = useState('')
@@ -102,13 +110,18 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddExpenseMod
                   </span>
                 )}
               </div>
-              <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800">
-  <option value="Food">Food</option>
-  <option value="Entertainment">Entertainment</option>
-  <option value="Shopping">Shopping</option>
-  <option value="Bills">Bills</option>
-  <option value="Other">Other</option>
-</select>
+              <select 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)} 
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm text-slate-800"
+              >
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Bills">Bills</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
           </div>
 

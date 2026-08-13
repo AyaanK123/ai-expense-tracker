@@ -3,6 +3,16 @@ import { useAuth } from '@/hooks/useAuth'
 import { useExpenses } from '@/hooks/useExpenses'
 import { supabase } from '@/lib/supabase'
 
+export interface Expense {
+  id?: string;
+  title?: string;
+  description?: string;
+  amount: number;
+  category: string;
+  date: string;
+  receipt_url?: string;
+}
+
 export function ExpensesPage() {
   const { user } = useAuth()
   const { expenses, loading, error } = useExpenses(user?.id)
@@ -107,10 +117,10 @@ export function ExpensesPage() {
     setNewCategory(matchedCategory)
   }
 
-  // Filter & Sort Logic
+  // Filter & Sort Logic using strict Expense type
   const filteredAndSortedExpenses = useMemo(() => {
-    const list = (expenses || []).filter((exp: Record<string, unknown>) => {
-      const expDate = new Date(exp.date as string)
+    const list = ((expenses as Expense[]) || []).filter((exp: Expense) => {
+      const expDate = new Date(exp.date)
       const expMonth = (expDate.getMonth() + 1).toString().padStart(2, '0')
       const expYear = expDate.getFullYear().toString()
 
@@ -123,9 +133,9 @@ export function ExpensesPage() {
       return matchesDate && matchesCategory && matchesSearch
     })
 
-    return list.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
-      if (sortBy === 'date-desc') return new Date(b.date as string).getTime() - new Date(a.date as string).getTime()
-      if (sortBy === 'date-asc') return new Date(a.date as string).getTime() - new Date(b.date as string).getTime()
+    return list.sort((a: Expense, b: Expense) => {
+      if (sortBy === 'date-desc') return new Date(b.date).getTime() - new Date(a.date).getTime()
+      if (sortBy === 'date-asc') return new Date(a.date).getTime() - new Date(b.date).getTime()
       if (sortBy === 'amount-desc') return Number(b.amount || 0) - Number(a.amount || 0)
       if (sortBy === 'amount-asc') return Number(a.amount || 0) - Number(b.amount || 0)
       return 0
@@ -200,8 +210,8 @@ export function ExpensesPage() {
     }
   }
 
-  const handleEdit = (exp: Record<string, unknown>) => {
-    setEditingId(exp.id as string)
+  const handleEdit = (exp: Expense) => {
+    setEditingId(exp.id || null)
     setNewTitle(String(exp.description || exp.title || ''))
     setNewAmount(String(exp.amount || ''))
     setNewCategory(String(exp.category || 'Food'))
@@ -305,22 +315,22 @@ export function ExpensesPage() {
           </div>
         ) : (
           <div className="divide-y divide-slate-100">
-            {filteredAndSortedExpenses.map((exp: Record<string, unknown>) => (
-              <div key={exp.id as string} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50/80 transition-colors">
+            {filteredAndSortedExpenses.map((exp: Expense) => (
+              <div key={exp.id} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50/80 transition-colors">
                 <div className="space-y-1">
                   <h4 className="font-semibold text-slate-900 text-sm flex items-center gap-2">
-                    {String(exp.title || exp.description || 'Unnamed Expense')}
+                    {exp.title || exp.description || 'Unnamed Expense'}
                     {exp.receipt_url && (
-                      <a href={exp.receipt_url as string} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md hover:underline font-medium">
+                      <a href={exp.receipt_url} target="_blank" rel="noopener noreferrer" className="text-xs text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md hover:underline font-medium">
                         📄 View Receipt
                       </a>
                     )}
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-slate-500">
-                    <span>{String(exp.date)}</span>
+                    <span>{exp.date}</span>
                     <span>•</span>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
-                      {String(exp.category)}
+                      {exp.category}
                     </span>
                   </div>
                 </div>
@@ -339,7 +349,7 @@ export function ExpensesPage() {
                       ✏️
                     </button>
                     <button 
-                      onClick={() => handleDelete(exp.id as string)}
+                      onClick={() => handleDelete(exp.id!)}
                       className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
                       title="Delete"
                     >
